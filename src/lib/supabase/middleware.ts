@@ -53,7 +53,8 @@ export async function updateSession(request: NextRequest) {
 
     // Protect Admin Routes
     if (user && request.nextUrl.pathname.startsWith('/admin')) {
-        if (user.email !== 'admin@neshtech.com') {
+        const allowedEmails = ['admin@neshtech.com', 'gmunene561@gmail.com'];
+        if (!allowedEmails.includes(user.email || '')) {
             const url = request.nextUrl.clone()
             url.pathname = '/'
             return NextResponse.redirect(url)

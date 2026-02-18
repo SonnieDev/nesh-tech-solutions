@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,6 +22,9 @@ import { toast } from "sonner";
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Product } from '@/types';
+import { uploadImage } from '@/lib/upload-service';
+import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
 
 const productSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -40,7 +43,9 @@ interface ProductFormProps {
 export function ProductForm({ initialData }: ProductFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const supabase = createClient();
+
 
     const form = useForm<z.infer<typeof productSchema>>({
         resolver: zodResolver(productSchema),
@@ -185,11 +190,47 @@ export function ProductForm({ initialData }: ProductFormProps) {
                     name="image_url"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Image URL</FormLabel>
+                            <FormLabel>Product Image</FormLabel>
                             <FormControl>
-                                <Input placeholder="https://..." {...field} />
+                                <div className="space-y-4">
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        disabled={uploading}
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setUploading(true);
+                                                try {
+                                                    const url = await uploadImage(file);
+                                                    field.onChange(url);
+                                                    toast.success("Image uploaded successfully");
+                                                } catch (error) {
+                                                    toast.error("Failed to upload image");
+                                                    console.error(error);
+                                                } finally {
+                                                    setUploading(false);
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    <Input placeholder="Or enter image URL manually" {...field} />
+                                    {field.value && (
+                                        <div className="relative aspect-video w-full max-w-sm rounded-lg overflow-hidden border">
+                                            <Image
+                                                src={field.value}
+                                                alt="Preview"
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    )}
+                                    {uploading && <div className="text-sm text-muted-foreground flex items-center gap-2">
+                                        <Loader2 className="h-4 w-4 animate-spin" /> Uploading...
+                                    </div>}
+                                </div>
                             </FormControl>
-                            <FormDescription>Link to an image (e.g., from Unsplash or Amazon)</FormDescription>
+                            <FormDescription>Upload an image or provide a URL.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}

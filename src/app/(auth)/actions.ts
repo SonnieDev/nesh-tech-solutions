@@ -9,13 +9,19 @@ export async function login(formData: FormData) {
     const supabase = await createClient();
 
     const data = {
-        email: formData.get("email") as string,
-        password: formData.get("password") as string,
+        email: (formData.get("email") as string).trim(),
+        password: (formData.get("password") as string).trim(),
     };
+
+    console.log("Login Attempt (Trimmed):", {
+        email: data.email,
+        passwordLength: data.password?.length,
+    });
 
     const { error } = await supabase.auth.signInWithPassword(data);
 
     if (error) {
+        console.error("Login error:", error);
         redirect("/login?error=Could not authenticate user");
     }
 
