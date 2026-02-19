@@ -41,10 +41,16 @@ export default function CheckoutPage() {
         const supabase = createClient();
 
         try {
-            // 1. Create Order
+            // 1. Get User
+            const { data: { user } } = await supabase.auth.getUser();
+            console.log("Checkout User:", user?.id || "Guest");
+
+
+            // 2. Create Order
             const { data: order, error: orderError } = await supabase
                 .from('orders')
                 .insert({
+                    user_id: user?.id,
                     customer_name: formData.name,
                     customer_phone: formData.phone,
                     delivery_address: formData.address,
@@ -59,10 +65,9 @@ export default function CheckoutPage() {
             // 2. Create Order Items
             const orderItems = items.map(item => ({
                 order_id: order.id,
-                product_id: item.product.id,
-                variant_id: item.variant.id,
+                product_variant_id: item.variant.id,
                 quantity: item.quantity,
-                price_at_purchase: item.product.base_price + (item.variant.price_modifier || 0)
+                unit_price: item.product.base_price + (item.variant.price_modifier || 0)
             }));
 
             const { error: itemsError } = await supabase
@@ -95,8 +100,9 @@ export default function CheckoutPage() {
             router.push('/');
 
         } catch (error: any) {
-            console.error(error);
-            toast.error("Failed to place order. Please try again or contact support.");
+            console.error("Checkout Error Object:", error);
+            console.error("Checkout Error JSON:", JSON.stringify(error, null, 2));
+            toast.error(`Failed to place order. Details: ${error.message || error.details || "Check console"}`);
         }
     };
 

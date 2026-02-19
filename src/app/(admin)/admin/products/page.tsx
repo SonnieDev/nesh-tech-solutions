@@ -10,8 +10,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Image from 'next/image';
+import { ProductActions } from '@/components/admin/product-actions';
 
 export default async function AdminProductsPage() {
     const supabase = await createClient();
@@ -62,18 +63,9 @@ export default async function AdminProductsPage() {
                                 <TableCell>{product.brand}</TableCell>
                                 <TableCell>{product.model}</TableCell>
                                 <TableCell className="text-right">KES {product.base_price.toLocaleString()}</TableCell>
+
                                 <TableCell className="text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <Button variant="ghost" size="icon" asChild>
-                                            <Link href={`/admin/products/${product.id}/edit`}>
-                                                <Edit className="h-4 w-4" />
-                                            </Link>
-                                        </Button>
-                                        {/* Delete implementation requires client component or server action */}
-                                        <Button variant="ghost" size="icon" className="text-destructive">
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                                    <ProductActions productId={product.id} />
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -5,7 +5,13 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { login } from "../actions"
 
-export default function LoginPage() {
+
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+    const { error } = await searchParams;
+
     return (
         <div className="flex h-screen w-full items-center justify-center bg-muted/40">
             <Card className="w-full max-w-sm">
@@ -16,6 +22,12 @@ export default function LoginPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {error && (
+                        <Alert variant="destructive" className="mb-4">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    )}
                     <form action={login} className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="email">Email</Label>
@@ -38,3 +50,4 @@ export default function LoginPage() {
         </div>
     )
 }
+

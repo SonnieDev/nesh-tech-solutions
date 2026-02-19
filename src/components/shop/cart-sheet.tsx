@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,11 @@ import { Separator } from "@/components/ui/separator";
 
 export function CartSheet() {
     const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems } = useCartStore();
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     return (
         <Sheet>
@@ -26,7 +32,7 @@ export function CartSheet() {
                 <Button variant="ghost" size="icon" className="relative group">
                     <ShoppingCart className="h-5 w-5 group-hover:text-primary transition-colors" />
                     <span className="sr-only">Shopping Cart</span>
-                    {getTotalItems() > 0 && (
+                    {isMounted && getTotalItems() > 0 && (
                         <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold text-primary-foreground flex items-center justify-center animate-in zoom-in">
                             {getTotalItems()}
                         </span>

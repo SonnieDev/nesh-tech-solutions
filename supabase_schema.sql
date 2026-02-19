@@ -78,7 +78,8 @@ create table product_images (
   product_id uuid references products(id) on delete cascade not null,
   url text not null,
   display_order integer default 0,
-  is_primary boolean default false
+  is_primary boolean default false,
+  product_variant_id uuid references product_variants(id) on delete set null
 );
 
 alter table product_images enable row level security;
