@@ -32,7 +32,7 @@ const productSchema = z.object({
     brand: z.enum(["iPhone", "Samsung"]),
     model: z.string().min(2, { message: "Model is required." }),
     base_price: z.coerce.number().min(0, { message: "Price must be positive." }),
-    is_featured: z.boolean().default(false),
+    is_featured: z.boolean(),
     image_url: z.string().url({ message: "Invalid URL" }).optional().or(z.literal('')),
 });
 
